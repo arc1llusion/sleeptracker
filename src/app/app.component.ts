@@ -1,44 +1,74 @@
 import { Component } from '@angular/core';
+import { MemoryStorageService } from './memory-storage.service';
+import { SheetsApiService } from './sheets-api.service';
+import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['../demo-styling.css']
+  styleUrls: ['app.component.scss']
 })
 export class AppComponent {
   title = 'angular-quickstart';
 
-  	public oauthSignIn() {
-		// Google's OAuth 2.0 endpoint for requesting an access token
-		var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
+	isLoggedIn: boolean = false;
+	private accessToken : string | null = null;
+	public data: any[] = [];
+	public displayedColumns = ["date", "hours"];
 
-		// Create <form> element to submit parameters to OAuth 2.0 endpoint.
-		var form = document.createElement('form');
-		form.setAttribute('method', 'GET'); // Send as a GET request.
-		form.setAttribute('action', oauth2Endpoint);
+	public addHoursForm = this.formBuilder.group({
+		date: [new Date(Date.now()).toISOString().substring(0, 10), Validators.required],
+		hours: [0, Validators.pattern("^[0-9]*$")],		
+	});
 
-		// Parameters to pass to OAuth 2.0 endpoint.
-		var params: any = {
-			'client_id': '134331987353-p143afnir7vo3ti18so81esq2r3i523u.apps.googleusercontent.com ',
-			'redirect_uri': 'https://sleeptrackerarc.netlify.app/callback',
-			'response_type': 'token',
-			'scope': 'https://www.googleapis.com/auth/spreadsheets',
-			'include_granted_scopes': 'true',
-			'state': 'pass-through value'
-		};
+	constructor(private formBuilder: FormBuilder, private memoryStorageService: MemoryStorageService, private sheets: SheetsApiService) {}
 
-		// Add form parameters as hidden input values.
-		for (var p in params) {
-			var input = document.createElement('input');
-			input.setAttribute('type', 'hidden');
-			input.setAttribute('name', p);
-			input.setAttribute('value', params[p]);
-			form.appendChild(input);
+	public async ngOnInit() 
+	{
+		this.memoryStorageService.AccessTokenObservable.subscribe((value) => 
+		{
+			this.isLoggedIn = value ? true : false;
+			this.accessToken = value;
+
+			if(this.isLoggedIn)
+			{
+				this.sheets.CreateSheetIfNotExists(this.accessToken!).then(() => {
+					this.sheets.GetData(this.accessToken!).then((d) => {
+						this.data = d;
+					});
+				});
+			}
+		});
+	}
+
+	public async AddHours() 
+	{
+		let date = this.addHoursForm.get('date')?.value;
+		let hours = this.addHoursForm.get('hours')?.value;
+
+		let idx = this.data.findIndex((f) => {
+			return f[0] == date;
+		});
+
+		if(idx == -1)
+		{
+			this.data.push([date, hours]);
+		}
+		else
+		{
+			this.data[idx][1] = hours;
 		}
 
-		// Add form to page and submit it to open the OAuth 2.0 endpoint.
-		document.body.appendChild(form);
-		form.submit();
+		this.data = this.data.sort((a, b) => {
+			return a == b ? 0 : a > b ? -1 : 1;
+		});
+
+		this.sheets.UpdateData(this.accessToken!, this.data);
+	}
+
+	public async GrabData() 
+	{
+		this.data = await this.sheets.GetData(this.accessToken!);
 	}
 }
 
