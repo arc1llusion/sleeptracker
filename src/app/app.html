@@ -7,11 +7,12 @@
 				<mat-icon>how_to_reg</mat-icon>
 				Login
 			</button>
+			
+			<div class="startup-status-update">{{StartupStatus}}</div>
 		</div>
 	</div>
-	<div class="startup-status-update">{{StartupStatus}}</div>
 	}
-	@if(true)
+	@if(isLoggedIn)
 	{
 	<fieldset id="fieldset">
 		<form id="hoursForm" [formGroup]="addHoursForm" (submit)="AddHours()">
@@ -39,7 +40,7 @@
 					</div>
 				</div>
 				<div class="add-button item">
-					<button [disabled]="this.addHoursForm.valid === true" matFab extended>
+					<button [disabled]="this.addHoursForm.valid === false" matFab extended>
 						<mat-icon>add</mat-icon>
 						Add Hours
 					</button>

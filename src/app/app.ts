@@ -47,8 +47,8 @@ export class App {
 
 	public addHoursForm: FormGroup;
 
-	public Status: string = 'hello';
-	public StartupStatus: string = 'hello';
+	public Status: string = '';
+	public StartupStatus: string = '';
 
 	constructor(private zone: NgZone, private router: Router, private formBuilder: FormBuilder, private memoryStorageService: MemoryStorageService, private sheets: SheetsApiService) {
 		let date = new Date(Date.now());
@@ -71,8 +71,8 @@ export class App {
 			if (this.isLoggedIn) {
 				this.sheets.CreateSheetIfNotExists(this.accessToken!).then(() => {
 					this.sheets.GetData(this.accessToken!).then((d) => {
-						this.data = d;
-						this.dataSource.data = d;
+						this.data = d ?? [];
+						this.dataSource.data = d ?? [];
 					});
 				});
 			}
@@ -112,6 +112,8 @@ export class App {
 	}
 
 	public async AddHours() {
+		console.log(this.addHoursForm);
+
 		this.zone.run(() => {
 
 			let date = this.addHoursForm.get('date')?.value.toISOString().substring(0, 10);
