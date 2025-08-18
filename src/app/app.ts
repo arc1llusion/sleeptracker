@@ -75,8 +75,11 @@ export class App {
 			}
 		});
 
+	}
+
+	public ngAfterViewInit() 
+	{
 		this.zone.run(async () => {
-			console.log(google);
 			this.client = google.accounts.oauth2.initTokenClient({
 				client_id: '134331987353-p143afnir7vo3ti18so81esq2r3i523u.apps.googleusercontent.com',
 				scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets',
@@ -88,7 +91,7 @@ export class App {
 			});
 
 			this.isgApiLoaded = true;
-		})
+		});
 	}
 
 	public oauthSignIn() {
@@ -100,8 +103,7 @@ export class App {
 	}
 
 	public async AddHours() {
-		this.zone.run(() =>
-		{
+		this.zone.run(() => {
 
 			let date = this.addHoursForm.get('date')?.value.toISOString().substring(0, 10);
 			let hours = this.addHoursForm.get('hours')?.value;
@@ -132,10 +134,8 @@ export class App {
 				notes: ''
 			});
 
-			for(let i = 0; i < this.data.length; ++i) 
-			{
-				if(this.data[i].length == 2)
-				{
+			for (let i = 0; i < this.data.length; ++i) {
+				if (this.data[i].length == 2) {
 					this.data[i].push('');
 				}
 			}
@@ -143,8 +143,7 @@ export class App {
 			this.dataSource.data = this.data;
 		});
 
-		this.sheets.UpdateData(this.accessToken!, this.data).then(() => 
-		{
+		this.sheets.UpdateData(this.accessToken!, this.data).then(() => {
 			this.Status = "Hours submitted!"
 		}).catch((e) => {
 			console.log(e);
