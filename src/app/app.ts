@@ -84,24 +84,22 @@ export class App {
 	{
 		if(this.isgApiLoaded) return;
 
-		this.zone.run(async () => {
-			if(!google)
-			{
-				this.StartupStatus = 'Google API couldn\'t be loaded';
-			}
+		if(!google)
+		{
+			this.StartupStatus = 'Google API couldn\'t be loaded';
+		}
 
-			this.client = google.accounts.oauth2.initTokenClient({
-				client_id: '134331987353-p143afnir7vo3ti18so81esq2r3i523u.apps.googleusercontent.com',
-				scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets',
-				callback: (response: any) => {
-					this.memoryStorageService.updateAccessToken(response.access_token);
+		this.client = google.accounts.oauth2.initTokenClient({
+			client_id: '134331987353-p143afnir7vo3ti18so81esq2r3i523u.apps.googleusercontent.com',
+			scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets',
+			callback: (response: any) => {
+				this.memoryStorageService.updateAccessToken(response.access_token);
 
-					this.router.navigateByUrl('/');
-				},
-			});
-
-			this.isgApiLoaded = true;
+				this.router.navigateByUrl('/');
+			},
 		});
+
+		this.isgApiLoaded = true;
 	}
 
 	public oauthSignIn() {
