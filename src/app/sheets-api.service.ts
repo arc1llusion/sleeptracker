@@ -104,8 +104,9 @@ export class SheetsApiService {
     {
         let vr: ValueRange = new ValueRange('A1:C' + (values.length + 1), MajorDimension.ROWS, values);
 
+        console.log(values);
+
         try {
-            console.log('hello');
             let v = lastValueFrom(this.http.put(this.sheetsEndpoint + 'spreadsheets/' + this.sheetId + '/values/A1%3AC' + (values.length + 1) + '?valueInputOption=USER_ENTERED', JSON.stringify(vr), {
                 headers: {
                     'Authorization' : 'Bearer ' + accessToken

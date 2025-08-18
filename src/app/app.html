@@ -33,7 +33,7 @@
 					<div class="notes-field">
 						<mat-form-field class="example-full-width">
 							<mat-label>Notes</mat-label>
-							<textarea matInput placeholder="Place notes here..."></textarea>
+							<textarea matInput placeholder="Place notes here..." formControlName="notes"></textarea>
 						</mat-form-field>
 					</div>
 				</div>
@@ -45,10 +45,11 @@
 				</div>
 			</div>
 		</form>
+		<div id="status-update">{{Status}}</div>
 	</fieldset>
 
 	<div class="data">
-		<table mat-table [dataSource]="data">
+		<table mat-table [dataSource]="dataSource">
 			<ng-container matColumnDef="date">
 				<th mat-header-cell *matHeaderCellDef> Date </th>
 				<td mat-cell *matCellDef="let element"> {{element[0]}} </td>

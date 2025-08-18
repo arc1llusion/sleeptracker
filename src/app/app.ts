@@ -6,7 +6,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { MemoryStorageService } from './memory-storage.service';
 import { SheetsApiService } from './sheets-api.service';
 import { MatInputModule } from '@angular/material/input';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
@@ -40,15 +40,23 @@ export class App {
 	public data: any[] = [];
 	public displayedColumns = ["date", "hours", "notes"];
 
+	public dataSource = new MatTableDataSource<any[]>();
+
 	public isgApiLoaded: boolean = false;
 	public client?: any;
 
 	public addHoursForm: FormGroup;
 
+	public Status: string = 'hello';
+
 	constructor(private zone: NgZone, private router: Router, private formBuilder: FormBuilder, private memoryStorageService: MemoryStorageService, private sheets: SheetsApiService) {
+		let date = new Date(Date.now());
+		date = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1);
+
 		this.addHoursForm = this.formBuilder.group({
-			date: [new Date(Date.now()).toISOString().substring(0, 10), Validators.required],
+			date: [date, Validators.required],
 			hours: [0, Validators.pattern("^[0-9]*$")],
+			notes: ''
 		});
 	}
 
@@ -61,6 +69,7 @@ export class App {
 				this.sheets.CreateSheetIfNotExists(this.accessToken!).then(() => {
 					this.sheets.GetData(this.accessToken!).then((d) => {
 						this.data = d;
+						this.dataSource.data = d;
 					});
 				});
 			}
@@ -91,27 +100,56 @@ export class App {
 	}
 
 	public async AddHours() {
-		let date = this.addHoursForm.get('date')?.value;
-		let hours = this.addHoursForm.get('hours')?.value;
-		let notes = this.addHoursForm.get('notes')?.value;
+		this.zone.run(() =>
+		{
 
-		let idx = this.data.findIndex((f) => {
-			return f[0] == date;
+			let date = this.addHoursForm.get('date')?.value.toISOString().substring(0, 10);
+			let hours = this.addHoursForm.get('hours')?.value;
+			let notes = this.addHoursForm.get('notes')?.value;
+
+			let idx = this.data.findIndex((f) => {
+				return f[0] == date;
+			});
+
+			if (idx == -1) {
+				this.data.push([date, hours, notes]);
+			}
+			else {
+				this.data[idx][1] = hours;
+				this.data[idx][2] = notes;
+			}
+
+			this.data = this.data.sort((a, b) => {
+				return a == b ? 0 : a > b ? -1 : 1;
+			});
+
+			let newDate = new Date(Date.now());
+			newDate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate() - 1);
+
+			this.addHoursForm.reset({
+				date: newDate,
+				hours: 0,
+				notes: ''
+			});
+
+			for(let i = 0; i < this.data.length; ++i) 
+			{
+				if(this.data[i].length == 2)
+				{
+					this.data[i].push('');
+				}
+			}
+
+			this.dataSource.data = this.data;
 		});
 
-		if (idx == -1) {
-			this.data.push([date, hours, notes]);
-		}
-		else {
-			this.data[idx][1] = hours;
-			this.data[idx][2] = notes;
-		}
-
-		this.data = this.data.sort((a, b) => {
-			return a == b ? 0 : a > b ? -1 : 1;
+		this.sheets.UpdateData(this.accessToken!, this.data).then(() => 
+		{
+			this.Status = "Hours submitted!"
+		}).catch((e) => {
+			console.log(e);
+			this.Status = e.error.error.message;
 		});
-
-		this.sheets.UpdateData(this.accessToken!, this.data);
 	}
 
 	public async GrabData() {
