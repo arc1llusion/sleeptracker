@@ -84,7 +84,7 @@ export class App {
 	{
 		if(this.isgApiLoaded) return;
 
-		if(!google)
+		if(typeof google === 'undefined')
 		{
 			this.StartupStatus = 'Google API couldn\'t be loaded';
 			return;
