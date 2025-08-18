@@ -87,6 +87,7 @@ export class App {
 		if(!google)
 		{
 			this.StartupStatus = 'Google API couldn\'t be loaded';
+			return;
 		}
 
 		this.client = google.accounts.oauth2.initTokenClient({
