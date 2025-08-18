@@ -9,6 +9,7 @@
 			</button>
 		</div>
 	</div>
+	<div class="startup-status-update">{{StartupStatus}}</div>
 	}
 	@if(isLoggedIn)
 	{
@@ -70,7 +71,6 @@
 			<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 		</table>
 	</div>
-
 	}
 
 	<router-outlet></router-outlet>

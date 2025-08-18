@@ -42,12 +42,13 @@ export class App {
 
 	public dataSource = new MatTableDataSource<any[]>();
 
-	public isgApiLoaded: boolean = false;
+	public isgApiLoaded: boolean;
 	public client?: any;
 
 	public addHoursForm: FormGroup;
 
 	public Status: string = 'hello';
+	public StartupStatus: string = 'hello';
 
 	constructor(private zone: NgZone, private router: Router, private formBuilder: FormBuilder, private memoryStorageService: MemoryStorageService, private sheets: SheetsApiService) {
 		let date = new Date(Date.now());
@@ -58,6 +59,8 @@ export class App {
 			hours: [0, Validators.pattern("^[0-9]*$")],
 			notes: ''
 		});
+
+		this.isgApiLoaded = false;
 	}
 
 	public async ngOnInit() {
@@ -77,9 +80,16 @@ export class App {
 
 	}
 
-	public ngAfterViewInit() 
+	public ngAfterContentChecked() 
 	{
+		if(this.isgApiLoaded) return;
+
 		this.zone.run(async () => {
+			if(!google)
+			{
+				this.StartupStatus = 'Google API couldn\'t be loaded';
+			}
+
 			this.client = google.accounts.oauth2.initTokenClient({
 				client_id: '134331987353-p143afnir7vo3ti18so81esq2r3i523u.apps.googleusercontent.com',
 				scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets',
