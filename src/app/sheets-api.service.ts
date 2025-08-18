@@ -91,7 +91,7 @@ export class SheetsApiService {
 
     public async GetData(accessToken: string) : Promise<[]>
     {
-        let response:any = await lastValueFrom(this.http.get(this.sheetsEndpoint + 'spreadsheets/' + this.sheetId + '/values/A%3AB', {
+        let response:any = await lastValueFrom(this.http.get(this.sheetsEndpoint + 'spreadsheets/' + this.sheetId + '/values/A%3AC', {
             headers: {
                 'Authorization' : 'Bearer ' + accessToken
             }
@@ -102,11 +102,11 @@ export class SheetsApiService {
 
     public async UpdateData(accessToken: string, values: any[])
     {
-        let vr: ValueRange = new ValueRange('A1:B' + (values.length + 1), MajorDimension.ROWS, values);
+        let vr: ValueRange = new ValueRange('A1:C' + (values.length + 1), MajorDimension.ROWS, values);
 
         try {
             console.log('hello');
-            let v = lastValueFrom(this.http.put(this.sheetsEndpoint + 'spreadsheets/' + this.sheetId + '/values/A1%3AB' + (values.length + 1) + '?valueInputOption=USER_ENTERED', JSON.stringify(vr), {
+            let v = lastValueFrom(this.http.put(this.sheetsEndpoint + 'spreadsheets/' + this.sheetId + '/values/A1%3AC' + (values.length + 1) + '?valueInputOption=USER_ENTERED', JSON.stringify(vr), {
                 headers: {
                     'Authorization' : 'Bearer ' + accessToken
                 }

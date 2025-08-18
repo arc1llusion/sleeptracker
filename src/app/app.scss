@@ -1,0 +1,43 @@
+.example-full-width {
+  width: 100%;
+}
+
+#container 
+{
+    width: 100%;
+    height: 100%;
+}
+
+#fieldset 
+{
+    margin: 32px;
+    border-radius: 15px;
+}
+
+.add-time-widget 
+{
+    display: flex;
+
+    flex-direction: row;
+
+    @media (max-width: 600px) {    
+        flex-direction: column;
+    }    
+
+    .item {
+        padding: 32px;
+        flex-grow: 2;
+    }
+}
+.data {
+    padding: 32px;
+}
+
+.login 
+{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
