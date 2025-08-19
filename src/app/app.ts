@@ -73,7 +73,7 @@ export class App {
 				this.sheets.CreateSheetIfNotExists(this.accessToken!).then(() => {
 					this.sheets.GetData(this.accessToken!).then((d) => {
 						this.data = d ?? [];
-						this.dataSource.data = d ?? [];
+						this.FilterLast30DaysAndCalculateTotalHours();
 					});
 				});
 			}
@@ -171,6 +171,7 @@ export class App {
 
 	public async GrabData() {
 		this.data = await this.sheets.GetData(this.accessToken!);
+		this.FilterLast30DaysAndCalculateTotalHours();
 	}
 
 	public FilterLast30DaysAndCalculateTotalHours()
@@ -179,7 +180,7 @@ export class App {
 		newDate = new Date(newDate.setDate(newDate.getDate() - 30));
 		let filtered = this.data.filter((d) => 
 		{
-			return d[0] >= newDate;
+			return new Date(d[0]) >= newDate;
 		});
 
 		this.dataSource.data = filtered;
@@ -187,7 +188,7 @@ export class App {
 
 		for(let i = 0; i < filtered.length; ++i) 
 		{
-			this.totalHoursLast30Days += filtered[1];
+			this.totalHoursLast30Days += Number.parseFloat(filtered[i][1]);
 		}
 	}
 }
