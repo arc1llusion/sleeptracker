@@ -172,7 +172,7 @@ export class App {
 				}
 			}
 
-			this.dataSource.data = this.data;
+			this.FilterLast30DaysAndCalculateTotalHours();
 		});
 
 		this.sheets.UpdateData(this.accessToken!, this.data).then(() => {
