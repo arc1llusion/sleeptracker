@@ -11,6 +11,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
+import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
 
 declare var google: any;
 
@@ -27,7 +30,8 @@ declare var google: any;
 		MatFormFieldModule,
 		MatDatepickerModule,
 		MatNativeDateModule,
-		NativeDateModule
+		NativeDateModule,
+		NgxChartsModule
 	],
 	templateUrl: './app.html',
 	styleUrl: './app.scss'
@@ -42,6 +46,8 @@ export class App {
 
 	public dataSource = new MatTableDataSource<any[]>();
 	public totalHoursLast30Days = 0;
+	public averagePerNight = 0;
+	public chartData: any;
 
 	public isgApiLoaded: boolean;
 	public client?: any;
@@ -50,6 +56,13 @@ export class App {
 
 	public Status: string = '';
 	public StartupStatus: string = '';
+
+	public chartColorScheme: Color = {
+		name: 'myScheme',
+		selectable: true,
+		group: ScaleType.Ordinal,
+		domain: ['#7AA3E5'],
+	};
 
 	constructor(private zone: NgZone, private router: Router, private formBuilder: FormBuilder, private memoryStorageService: MemoryStorageService, private sheets: SheetsApiService) {
 		let date = new Date(Date.now());
@@ -190,5 +203,33 @@ export class App {
 		{
 			this.totalHoursLast30Days += Number.parseFloat(filtered[i][1]);
 		}
+
+		this.averagePerNight = this.totalHoursLast30Days / filtered.length;
+
+		let localChartDate = filtered.map((f) => {
+			return {
+				name: new Date(f[0] + "T00:00:00"), //necessary to prevent weird JS date shenanigans
+				value: Number.parseFloat(f[1])
+			};
+		});
+
+		localChartDate.sort((a: any, b: any) => {
+			return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
+		});
+
+		let earliestDate = localChartDate[0].name;
+		let leadingDatesNeeded = 30 - localChartDate.length;
+
+		for(let i = 0; i < leadingDatesNeeded; ++i)
+		{
+			earliestDate = new Date(earliestDate.setDate(earliestDate.getDate() - 1));
+
+			localChartDate.splice(0, 0, {
+				name: earliestDate,
+				value: 0
+			});
+		}		
+
+		this.chartData = localChartDate;
 	}
 }

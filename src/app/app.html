@@ -52,6 +52,7 @@
 
 	<div class="data">
 		<h2>Last 30 Days</h2>
+		<p>Nightly Average: {{averagePerNight | number : '1.2-2'}}</p>
 		<table mat-table [dataSource]="dataSource">
 			<ng-container matColumnDef="date">
 				<th mat-header-cell *matHeaderCellDef> Date </th>
@@ -76,6 +77,21 @@
 			<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 			<tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
 		</table>
+	</div>
+
+	<div class="chart">
+		<ngx-charts-bar-vertical
+			[results]="chartData"
+			[gradient]="false"
+			[xAxis]="true"
+			[yAxis]="true"
+			[legend]="false"
+			[showXAxisLabel]="true"
+			[showYAxisLabel]="true"
+			[xAxisLabel]="'Date'"
+			[yAxisLabel]="'Hours'"
+			[scheme]="chartColorScheme">
+			</ngx-charts-bar-vertical>
 	</div>
 	}
 
