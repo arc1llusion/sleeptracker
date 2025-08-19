@@ -1,7 +1,7 @@
 <div id="container">
 	@if(!isLoggedIn)
 	{
-	<div class="login">
+	<div class="login remove-from-print">
 		<div class="login-button">
 			<button matFab extended (click)="oauthSignIn()" [disabled]="isgApiLoaded == false">
 				<mat-icon>how_to_reg</mat-icon>
@@ -14,7 +14,7 @@
 	}
 	@if(isLoggedIn)
 	{
-	<fieldset id="fieldset">
+	<fieldset id="fieldset" class="remove-from-print">
 		<form id="hoursForm" [formGroup]="addHoursForm" (submit)="AddHours()">
 			<div class="add-time-widget">
 				<div class="fields item">
@@ -94,7 +94,5 @@
 			</ngx-charts-bar-vertical>
 	</div>
 	}
-
 	<router-outlet></router-outlet>
-
 </div>
