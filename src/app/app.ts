@@ -41,6 +41,7 @@ export class App {
 	public displayedColumns = ["date", "hours", "notes"];
 
 	public dataSource = new MatTableDataSource<any[]>();
+	public totalHoursLast30Days = 0;
 
 	public isgApiLoaded: boolean;
 	public client?: any;
@@ -56,7 +57,7 @@ export class App {
 
 		this.addHoursForm = this.formBuilder.group({
 			date: [date, Validators.required],
-			hours: [0, Validators.pattern("^[0-9]*$")],
+			hours: [0],
 			notes: ''
 		});
 
@@ -113,12 +114,19 @@ export class App {
 
 	public async AddHours() {
 		console.log(this.addHoursForm);
+		
+		let date = this.addHoursForm.get('date')?.value.toISOString().substring(0, 10);
+		let hours = this.addHoursForm.get('hours')?.value;
+		let notes = this.addHoursForm.get('notes')?.value;
+
+		if(isNaN(hours))
+		{
+			this.Status = "Hours should be a number, fool."
+			return;
+		}
 
 		this.zone.run(() => {
 
-			let date = this.addHoursForm.get('date')?.value.toISOString().substring(0, 10);
-			let hours = this.addHoursForm.get('hours')?.value;
-			let notes = this.addHoursForm.get('notes')?.value;
 
 			let idx = this.data.findIndex((f) => {
 				return f[0] == date;
@@ -157,12 +165,29 @@ export class App {
 		this.sheets.UpdateData(this.accessToken!, this.data).then(() => {
 			this.Status = "Hours submitted!"
 		}).catch((e) => {
-			console.log(e);
 			this.Status = e.error.error.message;
 		});
 	}
 
 	public async GrabData() {
 		this.data = await this.sheets.GetData(this.accessToken!);
+	}
+
+	public FilterLast30DaysAndCalculateTotalHours()
+	{
+		let newDate = new Date(Date.now());
+		newDate = new Date(newDate.setDate(newDate.getDate() - 30));
+		let filtered = this.data.filter((d) => 
+		{
+			return d[0] >= newDate;
+		});
+
+		this.dataSource.data = filtered;
+		this.totalHoursLast30Days = 0;
+
+		for(let i = 0; i < filtered.length; ++i) 
+		{
+			this.totalHoursLast30Days += filtered[1];
+		}
 	}
 }

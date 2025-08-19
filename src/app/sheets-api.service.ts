@@ -97,7 +97,7 @@ export class SheetsApiService {
             }
         }));
 
-        return response.values;
+        return response.values ?? [];
     }
 
     public async UpdateData(accessToken: string, values: any[])
