@@ -50,31 +50,43 @@ export class SheetsApiService
 
     public async GetLoginUrl()
     {
-        let host = new URL(location.href).host;
-        let obj: any = await lastValueFrom(this.http.get('http://' + host + '/.netlify/functions/google-login'));
+        let url = new URL(location.href);
+        let host = url.host;
+        let protocol = url.protocol;
+
+        let obj: any = await lastValueFrom(this.http.get(protocol + '//' + host + '/.netlify/functions/google-login'));
         return obj.url;
     }
 
     public async CreateSheetIfNotExists(email: string) 
     {
-        let host = new URL(location.href).host;
-        let response:any = await lastValueFrom(this.http.get('http://' + host + '/.netlify/functions/sheets-create?email=' + email));
+        let url = new URL(location.href);
+        let host = url.host;
+        let protocol = url.protocol;
+
+        let response:any = await lastValueFrom(this.http.get(protocol + '//' + host + '/.netlify/functions/sheets-create?email=' + email));
         return response.spreadsheetId;
     }
 
     public async GetData(email: string, spreadsheetId: string) : Promise<[]>
     {
-        let host = new URL(location.href).host;
-        let response:any = await lastValueFrom(this.http.get('http://' + host + '/.netlify/functions/sheets-get-data?email=' + email + '&spreadsheetId='+ spreadsheetId))
+        let url = new URL(location.href);
+        let host = url.host;
+        let protocol = url.protocol;
+
+        let response:any = await lastValueFrom(this.http.get(protocol + '//' + host + '/.netlify/functions/sheets-get-data?email=' + email + '&spreadsheetId='+ spreadsheetId))
 
         return response.data ?? [];
     }
 
     public async UpdateData(email: string, spreadsheetId: string, values: any[])
     {
-        let host = new URL(location.href).host;
+        let url = new URL(location.href);
+        let host = url.host;
+        let protocol = url.protocol;
+
         let range = 'A1:C' + (values.length + 1).toString();
         let sValues = JSON.stringify(values);
-        let response:any = await lastValueFrom(this.http.get('http://' + host + '/.netlify/functions/sheets-update-data?email=' + email + '&spreadsheetId='+ spreadsheetId + '&range=' + encodeURIComponent(range) + '&values=' + encodeURIComponent(sValues)));
+        let response:any = await lastValueFrom(this.http.get(protocol + '://' + host + '/.netlify/functions/sheets-update-data?email=' + email + '&spreadsheetId='+ spreadsheetId + '&range=' + encodeURIComponent(range) + '&values=' + encodeURIComponent(sValues)));
     }
 }
