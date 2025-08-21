@@ -223,30 +223,49 @@ export class App {
 
 		this.averagePerNight = this.totalHoursLast30Days / filtered.length;
 
-		let localChartDate = filtered.map((f) => {
+		let localChartData = filtered.map((f) => {
 			return {
 				name: new Date(f[0] + "T00:00:00"), //necessary to prevent weird JS date shenanigans
 				value: Number.parseFloat(f[1])
 			};
-		});
+		});		
 
-		localChartDate.sort((a: any, b: any) => {
+		if(localChartData.length > 0)
+		{
+			let lastDate = new Date(localChartData[0].name.getFullYear(), localChartData[0].name.getMonth(), localChartData[0].name.getDate());
+			for(let i = 1; i < localChartData.length; ++i)
+			{	
+				lastDate.setDate(lastDate.getDate() - 1);
+
+				if(lastDate.getFullYear() != localChartData[i].name.getFullYear() ||
+				   lastDate.getMonth() != localChartData[i].name.getMonth() ||
+				   lastDate.getDate() != localChartData[i].name.getDate() )
+				{					
+					localChartData.splice(i, 0, {
+						name: new Date(lastDate.toDateString()),
+						value: 0
+					});
+				}
+			}
+		}
+
+		localChartData.sort((a: any, b: any) => {
 			return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
 		});
 
-		let earliestDate = localChartDate[0].name;
-		let leadingDatesNeeded = 30 - localChartDate.length;
+		let earliestDate = new Date(localChartData[0].name.toDateString());
+		let leadingDatesNeeded = 30 - localChartData.length;
 
 		for(let i = 0; i < leadingDatesNeeded; ++i)
 		{
 			earliestDate = new Date(earliestDate.setDate(earliestDate.getDate() - 1));
 
-			localChartDate.splice(0, 0, {
-				name: earliestDate,
+			localChartData.splice(0, 0, {
+				name: new Date(earliestDate.toDateString()),
 				value: 0
 			});
 		}		
 
-		this.chartData = localChartDate;
+		this.chartData = localChartData;
 	}
 }
