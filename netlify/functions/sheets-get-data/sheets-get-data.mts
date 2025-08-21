@@ -45,13 +45,13 @@ export default async (request: Request, context: Context) => {
 			spreadsheetId: spreadsheetId!
 		});
 
-		console.log(response);
+		console.log('response', response);
 
 		return Response.json({data: response.data.values});
 	}
 	catch(e)
 	{
-		console.log(e);
+		console.log('error', e);
 
 		return {
 			body: JSON.stringify({error: "Could not get sheet data.", clear: true}),
