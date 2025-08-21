@@ -12,8 +12,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { BrowserModule } from '@angular/platform-browser';
 
 declare var google: any;
 
@@ -57,6 +55,8 @@ export class App {
 	public Status: string = '';
 	public StartupStatus: string = '';
 
+	private lastTimeLoggedIn: number | null = null;
+
 	public chartColorScheme: Color = {
 		name: 'myScheme',
 		selectable: true,
@@ -96,6 +96,9 @@ export class App {
 
 	public ngAfterContentChecked() 
 	{
+		if(this.lastTimeLoggedIn != null && Date.now() - this.lastTimeLoggedIn > 900000)
+			this.isLoggedIn = false;
+
 		if(this.isgApiLoaded) return;
 
 		if(typeof google === 'undefined')
@@ -110,7 +113,7 @@ export class App {
 			callback: (response: any) => {
 				this.memoryStorageService.updateAccessToken(response.access_token);
 
-				this.router.navigateByUrl('/');
+				this.lastTimeLoggedIn = Date.now();
 			},
 		});
 
@@ -125,9 +128,16 @@ export class App {
 		});
 	}
 
-	public async AddHours() {
-		console.log(this.addHoursForm);
-		
+	public async AddHours() 
+	{		
+		if(this.lastTimeLoggedIn != null && Date.now() - this.lastTimeLoggedIn > 900000)
+		{
+			this.isLoggedIn = false;
+			return;
+		}
+
+		let tempData = this.data.slice();
+
 		let date = this.addHoursForm.get('date')?.value.toISOString().substring(0, 10);
 		let hours = this.addHoursForm.get('hours')?.value;
 		let notes = this.addHoursForm.get('notes')?.value;
@@ -141,19 +151,19 @@ export class App {
 		this.zone.run(() => {
 
 
-			let idx = this.data.findIndex((f) => {
+			let idx = tempData.findIndex((f) => {
 				return f[0] == date;
 			});
 
 			if (idx == -1) {
-				this.data.push([date, hours, notes]);
+				tempData.push([date, hours, notes]);
 			}
 			else {
-				this.data[idx][1] = hours;
-				this.data[idx][2] = notes;
+				tempData[idx][1] = hours;
+				tempData[idx][2] = notes;
 			}
 
-			this.data = this.data.sort((a, b) => {
+			tempData = tempData.sort((a, b) => {
 				return a == b ? 0 : a > b ? -1 : 1;
 			});
 
@@ -166,17 +176,19 @@ export class App {
 				notes: ''
 			});
 
-			for (let i = 0; i < this.data.length; ++i) {
-				if (this.data[i].length == 2) {
-					this.data[i].push('');
+			for (let i = 0; i < tempData.length; ++i) {
+				if (tempData[i].length == 2) {
+					tempData[i].push('');
 				}
 			}
-
-			this.FilterLast30DaysAndCalculateTotalHours();
 		});
 
-		this.sheets.UpdateData(this.accessToken!, this.data).then(() => {
+		this.sheets.UpdateData(this.accessToken!, tempData).then(() => {
 			this.Status = "Hours submitted!"
+			this.zone.run(() => {
+				this.data = tempData.slice();
+				this.FilterLast30DaysAndCalculateTotalHours();
+			});
 		}).catch((e) => {
 			this.Status = e.error.error.message;
 		});
