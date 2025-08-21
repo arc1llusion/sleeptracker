@@ -27,14 +27,14 @@ export class SheetsApiService {
         return response.spreadsheetId;
     }
 
-    public async GetData(email: string, spreadsheetId: string): Promise<[]> {
+    public async GetData(email: string, spreadsheetId: string): Promise<[] | boolean> {
         let url = new URL(location.href);
         let host = url.host;
         let protocol = url.protocol;
 
         let response: any = await lastValueFrom(this.http.get(protocol + '//' + host + '/.netlify/functions/sheets-get-data?email=' + email + '&spreadsheetId=' + spreadsheetId))
 
-        return response.data ?? [];
+        return response.data ?? response.clear;
     }
 
     public async UpdateData(email: string, spreadsheetId: string, values: any[]) {

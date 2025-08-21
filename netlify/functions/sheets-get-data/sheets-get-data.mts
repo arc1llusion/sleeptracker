@@ -38,11 +38,24 @@ export default async (request: Request, context: Context) => {
 
 	let sheets = google.sheets({version: 'v4', auth: oauth});
 
-	let response = await sheets.spreadsheets.values.get({
-		range: "A:C",
-		majorDimension: "ROWS",
-		spreadsheetId: spreadsheetId!
-	});
+	try {
+		let response = await sheets.spreadsheets.values.get({
+			range: "A:C",
+			majorDimension: "ROWS",
+			spreadsheetId: spreadsheetId!
+		});
 
-	return Response.json({data: response.data.values});
+		console.log(response);
+
+		return Response.json({data: response.data.values});
+	}
+	catch(e)
+	{
+		console.log(e);
+
+		return {
+			body: JSON.stringify({error: "Could not get sheet data.", clear: true}),
+			statusCode: 401
+		};
+	}
 }

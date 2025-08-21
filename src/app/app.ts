@@ -37,7 +37,7 @@ export class App {
 	protected readonly title = signal('sleeptracker');
 
 	isLoggedIn: boolean = false;
-	private accessToken: string | null = null;
+	
 	public data: any[] = [];
 	public displayedColumns = ["date", "hours", "notes"];
 
@@ -182,8 +182,16 @@ export class App {
 	{
 		if(this.email)
 		{
-			this.data = await this.sheets.GetData(this.email, this.spreadsheetId!);
-			this.FilterLast30DaysAndCalculateTotalHours();
+			let response = await this.sheets.GetData(this.email, this.spreadsheetId!);
+
+			if(typeof response == 'boolean')
+			{
+				localStorage.clear();
+			}
+			else {
+				this.data = response;
+				this.FilterLast30DaysAndCalculateTotalHours();
+			}			
 		}
 	}
 
