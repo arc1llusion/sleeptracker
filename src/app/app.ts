@@ -47,7 +47,6 @@ export class App {
 	public averagePerNight = 0;
 	public chartData: any;
 
-	public isgApiLoaded: boolean;
 	public client?: any;
 
 	public addHoursForm: FormGroup;
@@ -56,6 +55,11 @@ export class App {
 	public StartupStatus: string = '';
 
 	private lastTimeLoggedIn: number | null = null;
+
+	public loginUrl: string = '';
+
+	private email: string | null = null;
+	private spreadsheetId: string | null = null;
 
 	public chartColorScheme: Color = {
 		name: 'myScheme',
@@ -73,59 +77,40 @@ export class App {
 			hours: [0],
 			notes: ''
 		});
-
-		this.isgApiLoaded = false;
 	}
 
-	public async ngOnInit() {
-		this.memoryStorageService.AccessTokenObservable.subscribe((value) => {
-			this.isLoggedIn = value ? true : false;
-			this.accessToken = value;
-
-			if (this.isLoggedIn) {
-				this.sheets.CreateSheetIfNotExists(this.accessToken!).then(() => {
-					this.sheets.GetData(this.accessToken!).then((d) => {
-						this.data = d ?? [];
-						this.FilterLast30DaysAndCalculateTotalHours();
-					});
-				});
-			}
-		});
-
-	}
-
-	public ngAfterContentChecked() 
+	public async ngOnInit() 
 	{
-		if(this.lastTimeLoggedIn != null && Date.now() - this.lastTimeLoggedIn > 900000)
-			this.isLoggedIn = false;
+		let url = new URL(location.href);
+		let params = new URLSearchParams(url.search);
+		let email = params.get('email');
 
-		if(this.isgApiLoaded) return;
-
-		if(typeof google === 'undefined')
+		if(email)
 		{
-			this.StartupStatus = 'Google API couldn\'t be loaded';
-			return;
+			localStorage.setItem('email', email);
 		}
 
-		this.client = google.accounts.oauth2.initTokenClient({
-			client_id: '134331987353-p143afnir7vo3ti18so81esq2r3i523u.apps.googleusercontent.com',
-			scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets',
-			callback: (response: any) => {
-				this.memoryStorageService.updateAccessToken(response.access_token);
+		email = localStorage.getItem('email');
+		if(email)
+		{
+			this.email = email;
 
-				this.lastTimeLoggedIn = Date.now();
-			},
-		});
+			this.spreadsheetId = localStorage.getItem('spreadsheetId');
+			if(!this.spreadsheetId)
+			{
+				this.spreadsheetId = await this.sheets.CreateSheetIfNotExists(email);
+				localStorage.setItem('spreadsheetId', this.spreadsheetId!);
+			}			
 
-		this.isgApiLoaded = true;
-	}
+			await this.GrabData();
 
-	public oauthSignIn() {
-		if (!this.isgApiLoaded) return;
-
-		this.zone.run(() => {
-			this.client.requestAccessToken();
-		});
+			this.isLoggedIn = true;
+		}
+		else
+		{
+			this.isLoggedIn = false;
+			this.loginUrl = await this.sheets.GetLoginUrl();
+		}
 	}
 
 	public async AddHours() 
@@ -183,7 +168,7 @@ export class App {
 			}
 		});
 
-		this.sheets.UpdateData(this.accessToken!, tempData).then(() => {
+		this.sheets.UpdateData(this.email!, this.spreadsheetId!, tempData).then(() => {
 			this.Status = "Hours submitted!"
 			this.zone.run(() => {
 				this.data = tempData.slice();
@@ -194,9 +179,13 @@ export class App {
 		});
 	}
 
-	public async GrabData() {
-		this.data = await this.sheets.GetData(this.accessToken!);
-		this.FilterLast30DaysAndCalculateTotalHours();
+	public async GrabData() 
+	{
+		if(this.email)
+		{
+			this.data = await this.sheets.GetData(this.email, this.spreadsheetId!);
+			this.FilterLast30DaysAndCalculateTotalHours();
+		}
 	}
 
 	public FilterLast30DaysAndCalculateTotalHours()

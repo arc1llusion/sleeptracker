@@ -3,10 +3,10 @@
 	{
 	<div class="login remove-from-print">
 		<div class="login-button">
-			<button matFab extended (click)="oauthSignIn()" [disabled]="isgApiLoaded == false">
+			<a href="{{loginUrl}}" matFab extended [disabled]="loginUrl == ''">
 				<mat-icon>how_to_reg</mat-icon>
 				Login
-			</button>
+			</a>
 			
 			<div class="startup-status-update">{{StartupStatus}}</div>
 		</div>

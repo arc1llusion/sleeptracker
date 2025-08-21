@@ -43,81 +43,38 @@ export class ValueRange
 @Injectable({
     providedIn: 'root'
 })
-export class SheetsApiService {
-
-    private readonly SheetName = "Sleep Tracker";
-    private sheetId: string | null = null;
-
-    private sheetsEndpoint: string = 'https://sheets.googleapis.com/v4/'
-    private driveFilesEndpoint: string = 'https://www.googleapis.com/drive/v3/'
+export class SheetsApiService 
+{
 
     constructor(private http: HttpClient) {}
 
-    public async ListFiles(accessToken: string) : Promise<ListResponse[]>
-    {        
-        try {
-            let response:any = await lastValueFrom(this.http.get(this.driveFilesEndpoint + 'files?q=name+%3d+%27' + this.SheetName + '%27', {
-                headers: {
-                    'Authorization' : 'Bearer ' + accessToken
-                }
-            }));
-
-            return Promise.resolve(response.files);
-        }
-        catch(e)
-        {
-            return Promise.reject(e);
-        }
+    public async GetLoginUrl()
+    {
+        let host = new URL(location.href).host;
+        let obj: any = await lastValueFrom(this.http.get('http://' + host + '/.netlify/functions/google-login'));
+        return obj.url;
     }
 
-    public async CreateSheetIfNotExists(accessToken: string) 
+    public async CreateSheetIfNotExists(email: string) 
     {
-        let files = await this.ListFiles(accessToken);
-
-        if(files.length == 0)
-        {
-            let ss = new Spreadsheet();
-            ss.properties = { title: "Sleep Tracker" }
-            let response: any = await lastValueFrom(this.http.post([this.sheetsEndpoint, 'spreadsheets'].join(''), JSON.stringify(ss), { headers: {
-                'Authorization' : 'Bearer ' + accessToken
-            }}));
-
-            this.sheetId = response.spreadsheetId;
-        }
-        else if(files.length >= 1) {
-            this.sheetId = files[0].id;
-        }
+        let host = new URL(location.href).host;
+        let response:any = await lastValueFrom(this.http.get('http://' + host + '/.netlify/functions/sheets-create?email=' + email));
+        return response.spreadsheetId;
     }
 
-    public async GetData(accessToken: string) : Promise<[]>
+    public async GetData(email: string, spreadsheetId: string) : Promise<[]>
     {
-        let response:any = await lastValueFrom(this.http.get(this.sheetsEndpoint + 'spreadsheets/' + this.sheetId + '/values/A%3AC', {
-            headers: {
-                'Authorization' : 'Bearer ' + accessToken
-            }
-        }));
+        let host = new URL(location.href).host;
+        let response:any = await lastValueFrom(this.http.get('http://' + host + '/.netlify/functions/sheets-get-data?email=' + email + '&spreadsheetId='+ spreadsheetId))
 
-        return response.values ?? [];
+        return response.data ?? [];
     }
 
-    public async UpdateData(accessToken: string, values: any[])
+    public async UpdateData(email: string, spreadsheetId: string, values: any[])
     {
-        let vr: ValueRange = new ValueRange('A1:C' + (values.length + 1), MajorDimension.ROWS, values);
-
-        console.log(values);
-
-        try {
-            let v = lastValueFrom(this.http.put(this.sheetsEndpoint + 'spreadsheets/' + this.sheetId + '/values/A1%3AC' + (values.length + 1) + '?valueInputOption=USER_ENTERED', JSON.stringify(vr), {
-                headers: {
-                    'Authorization' : 'Bearer ' + accessToken
-                }
-            }));
-
-            return Promise.resolve(v);
-        }
-        catch(e)
-        {
-            return Promise.reject(e);
-        }
+        let host = new URL(location.href).host;
+        let range = 'A1:C' + (values.length + 1).toString();
+        let sValues = JSON.stringify(values);
+        let response:any = await lastValueFrom(this.http.get('http://' + host + '/.netlify/functions/sheets-update-data?email=' + email + '&spreadsheetId='+ spreadsheetId + '&range=' + encodeURIComponent(range) + '&values=' + encodeURIComponent(sValues)));
     }
 }
