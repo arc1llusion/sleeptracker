@@ -183,12 +183,14 @@ export class App {
 		if(this.email)
 		{
 			let response = await this.sheets.GetData(this.email, this.spreadsheetId!);
-
+			console.log(response);
 			if(typeof response == 'boolean')
 			{
+				console.log('clear');
 				localStorage.clear();
 			}
 			else {
+				console.log('get data');
 				this.data = response;
 				this.FilterLast30DaysAndCalculateTotalHours();
 			}			
