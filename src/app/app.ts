@@ -80,6 +80,11 @@ export class App {
 
 	public async ngOnInit() 
 	{
+		this.SetUp();
+	}
+
+	public async SetUp() 
+	{
 		let url = new URL(location.href);
 		let params = new URLSearchParams(url.search);
 		let email = params.get('email');
@@ -188,6 +193,8 @@ export class App {
 			{
 				console.log('clear');
 				localStorage.clear();
+				this.isLoggedIn = false;
+				this.SetUp();
 			}
 			else {
 				console.log('get data');
