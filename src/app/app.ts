@@ -3,7 +3,6 @@ import { Form, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterOutlet } from '@angular/router';
-import { MemoryStorageService } from './memory-storage.service';
 import { SheetsApiService } from './sheets-api.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -68,7 +67,7 @@ export class App {
 		domain: ['#7AA3E5'],
 	};
 
-	constructor(private zone: NgZone, private router: Router, private formBuilder: FormBuilder, private memoryStorageService: MemoryStorageService, private sheets: SheetsApiService) {
+	constructor(private zone: NgZone, private router: Router, private formBuilder: FormBuilder, private sheets: SheetsApiService) {
 		let date = new Date(Date.now());
 		date = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1);
 

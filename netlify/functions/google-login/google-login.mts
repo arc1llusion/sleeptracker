@@ -11,7 +11,7 @@ export default (request: Request, context: Context) => {
 	let url = oauth.generateAuthUrl({
 		access_type: 'offline',
 		scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email',
-		prompt: 'consent'
+		//prompt: 'consent'
 	});
 
 	console.log(url);
