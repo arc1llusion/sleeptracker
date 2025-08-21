@@ -32,9 +32,14 @@ export class SheetsApiService {
         let host = url.host;
         let protocol = url.protocol;
 
-        let response: any = await lastValueFrom(this.http.get(protocol + '//' + host + '/.netlify/functions/sheets-get-data?email=' + email + '&spreadsheetId=' + spreadsheetId))
-
-        return response.data ?? response.clear;
+        try {
+            let response: any = await lastValueFrom(this.http.get(protocol + '//' + host + '/.netlify/functions/sheets-get-data?email=' + email + '&spreadsheetId=' + spreadsheetId))
+            return response.data;
+        }
+        catch(e)
+        {
+            return true;
+        }
     }
 
     public async UpdateData(email: string, spreadsheetId: string, values: any[]) {
