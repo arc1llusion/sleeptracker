@@ -53,6 +53,6 @@ export default async (request: Request, context: Context) => {
 	{
 		console.log('error', e);
 
-		return Response.json({error: "Could not get sheet data.", clear: true, { status: 401 })
+		return Response.json({error: "Could not get sheet data.", clear: true}, { status: 401 })
 	}
 }
