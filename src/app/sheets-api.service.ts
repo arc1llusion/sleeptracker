@@ -85,8 +85,11 @@ export class SheetsApiService
         let host = url.host;
         let protocol = url.protocol;
 
+        console.log(protocol);
+
+
         let range = 'A1:C' + (values.length + 1).toString();
         let sValues = JSON.stringify(values);
-        let response:any = await lastValueFrom(this.http.get(protocol + '://' + host + '/.netlify/functions/sheets-update-data?email=' + email + '&spreadsheetId='+ spreadsheetId + '&range=' + encodeURIComponent(range) + '&values=' + encodeURIComponent(sValues)));
+        let response:any = await lastValueFrom(this.http.get(protocol + '//' + host + '/.netlify/functions/sheets-update-data?email=' + email + '&spreadsheetId='+ spreadsheetId + '&range=' + encodeURIComponent(range) + '&values=' + encodeURIComponent(sValues)));
     }
 }
