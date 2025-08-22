@@ -44,7 +44,11 @@ export default async (request: Request, context: Context) =>
 		q: "name = 'Sleep Tracker'"
 	});
 
+	console.log('driveResponse', driveResponse);
+
 	const files = driveResponse.data.files;
+
+	console.log('files', files);
 	
 	if(files && files?.length == 0)
 	{
