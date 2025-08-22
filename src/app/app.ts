@@ -89,6 +89,9 @@ export class App {
 		let params = new URLSearchParams(url.search);
 		let email = params.get('email');
 
+		console.log('email', localStorage.getItem('email'));
+		console.log('spreadsheetId', localStorage.getItem('spreadsheetId'));
+
 		if(email)
 		{
 			localStorage.setItem('email', email);
