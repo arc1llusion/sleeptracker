@@ -120,6 +120,13 @@ export class App {
 		}
 	}
 
+	public async Logout()
+	{
+		localStorage.clear();
+		this.isLoggedIn = false;
+		this.loginUrl = await this.sheets.GetLoginUrl();
+	}
+
 	public async AddHours() 
 	{		
 		try 
