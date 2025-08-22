@@ -197,6 +197,7 @@ export class App {
 				console.log('clear');
 				localStorage.clear();
 				this.isLoggedIn = false;
+				this.loginUrl = await this.sheets.GetLoginUrl();
 			}
 			else {
 				console.log('get data');
