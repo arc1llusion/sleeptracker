@@ -17,6 +17,9 @@ export default async (request: Request, context: Context) => {
 	let range = params.get('range');
 	let values = params.get('values');
 
+	console.log(email);
+	console.log(spreadsheetId);
+
 	const sql = neon(process.env.NETLIFY_DATABASE_URL ?? '');
 	let credentials = await sql`SELECT credentials FROM user_token where email = ${email}`;
 

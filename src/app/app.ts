@@ -48,8 +48,6 @@ export class App {
 	public averagePerNight = 0;
 	public chartData: any;
 
-	public client?: any;
-
 	public addHoursForm: FormGroup;
 
 	public Status: string = '';
