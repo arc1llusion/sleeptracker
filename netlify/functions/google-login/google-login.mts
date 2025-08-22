@@ -14,7 +14,5 @@ export default (request: Request, context: Context) => {
 		prompt: 'consent'
 	});
 
-	console.log(url);
-
 	return Response.json({url: url});
 }
