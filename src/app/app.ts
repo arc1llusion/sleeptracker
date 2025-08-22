@@ -197,7 +197,6 @@ export class App {
 				console.log('clear');
 				localStorage.clear();
 				this.isLoggedIn = false;
-				this.SetUp();
 			}
 			else {
 				console.log('get data');
