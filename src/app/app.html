@@ -1,4 +1,9 @@
 <div id="container">
+	
+	<div class="remove-from-print">&nbsp;</div>
+	<div class="logout remove-from-print">
+		<button matButton="tonal" (click)="Logout()">Logout</button>
+	</div>
 	@if(!isLoggedIn)
 	{
 	<div class="login remove-from-print">
@@ -14,10 +19,6 @@
 	}
 	@if(isLoggedIn)
 	{
-	<div class="remove-from-print">&nbsp;</div>
-	<div class="logout remove-from-print">
-		<button matButton="tonal" (click)="Logout()">Logout</button>
-	</div>
 	<fieldset id="fieldset" class="remove-from-print">
 		<form id="hoursForm" [formGroup]="addHoursForm" (submit)="AddHours()">
 			<div class="add-time-widget">
