@@ -230,6 +230,11 @@ export class App {
 
 	public FilterLast30DaysAndCalculateTotalHours()
 	{
+		if(!this.data || this.data.length == 0)
+		{
+			return;
+		}
+
 		let newDate = new Date(Date.now());
 		newDate = new Date(newDate.setDate(newDate.getDate() - 30));
 		let filtered = this.data.filter((d) => 
