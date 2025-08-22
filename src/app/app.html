@@ -40,13 +40,16 @@
 					</div>
 				</div>
 				<div class="add-button item">
-					<button [disabled]="this.addHoursForm.valid === false" matFab extended>
+					<button [disabled]="this.addHoursForm.valid === false || submittingHours === true" matFab extended>
 						<mat-icon>add</mat-icon>
 						Add Hours
 					</button>
 				</div>
 			</div>
 		</form>
+		@if(submittingHours) {
+			<div id="status-spinner"><mat-spinner></mat-spinner></div>
+		}
 		<div id="status-update">{{Status}}</div>
 	</fieldset>
 

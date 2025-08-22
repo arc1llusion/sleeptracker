@@ -45,6 +45,13 @@
     font-size: 18px;
 }
 
+#status-spinner
+{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 @media print {
     .data {
         width: 95% !important;

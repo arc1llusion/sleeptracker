@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
@@ -27,6 +28,7 @@ declare var google: any;
 		MatFormFieldModule,
 		MatDatepickerModule,
 		MatNativeDateModule,
+		MatProgressSpinnerModule,
 		NativeDateModule,
 		NgxChartsModule
 	],
@@ -59,6 +61,8 @@ export class App {
 
 	private email: string | null = null;
 	private spreadsheetId: string | null = null;
+
+	public submittingHours: boolean = false;
 
 	public chartColorScheme: Color = {
 		name: 'myScheme',
@@ -120,68 +124,81 @@ export class App {
 
 	public async AddHours() 
 	{		
-		if(this.lastTimeLoggedIn != null && Date.now() - this.lastTimeLoggedIn > 900000)
+		try 
 		{
-			this.isLoggedIn = false;
-			return;
-		}
+			this.submittingHours = true;
+			this.Status = '';
 
-		let tempData = this.data.slice();
-
-		let date = this.addHoursForm.get('date')?.value.toISOString().substring(0, 10);
-		let hours = this.addHoursForm.get('hours')?.value;
-		let notes = this.addHoursForm.get('notes')?.value;
-
-		if(isNaN(hours))
-		{
-			this.Status = "Hours should be a number, fool."
-			return;
-		}
-
-		this.zone.run(() => {
-
-
-			let idx = tempData.findIndex((f) => {
-				return f[0] == date;
-			});
-
-			if (idx == -1) {
-				tempData.push([date, hours, notes]);
-			}
-			else {
-				tempData[idx][1] = hours;
-				tempData[idx][2] = notes;
+			if(this.lastTimeLoggedIn != null && Date.now() - this.lastTimeLoggedIn > 900000)
+			{
+				this.isLoggedIn = false;
+				return;
 			}
 
-			tempData = tempData.sort((a, b) => {
-				return a == b ? 0 : a > b ? -1 : 1;
-			});
+			let tempData = this.data.slice();
 
-			let newDate = new Date(Date.now());
-			newDate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate() - 1);
+			let date = this.addHoursForm.get('date')?.value.toISOString().substring(0, 10);
+			let hours = this.addHoursForm.get('hours')?.value;
+			let notes = this.addHoursForm.get('notes')?.value;
 
-			this.addHoursForm.reset({
-				date: newDate,
-				hours: 0,
-				notes: ''
-			});
-
-			for (let i = 0; i < tempData.length; ++i) {
-				if (tempData[i].length == 2) {
-					tempData[i].push('');
-				}
+			if(isNaN(hours))
+			{
+				this.Status = "Hours should be a number, fool."
+				return;
 			}
-		});
 
-		this.sheets.UpdateData(this.email!, this.spreadsheetId!, tempData).then(() => {
-			this.Status = "Hours submitted!"
 			this.zone.run(() => {
-				this.data = tempData.slice();
-				this.FilterLast30DaysAndCalculateTotalHours();
+				let idx = tempData.findIndex((f) => {
+					return f[0] == date;
+				});
+
+				if (idx == -1) {
+					tempData.push([date, hours, notes]);
+				}
+				else {
+					tempData[idx][1] = hours;
+					tempData[idx][2] = notes;
+				}
+
+				tempData = tempData.sort((a, b) => {
+					return a == b ? 0 : a > b ? -1 : 1;
+				});
+
+				let newDate = new Date(Date.now());
+				newDate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate() - 1);
+
+				this.addHoursForm.reset({
+					date: newDate,
+					hours: 0,
+					notes: ''
+				});
+
+				for (let i = 0; i < tempData.length; ++i) {
+					if (tempData[i].length == 2) {
+						tempData[i].push('');
+					}
+				}
 			});
-		}).catch((e) => {
-			this.Status = e.error.error.message;
-		});
+		
+
+			this.sheets.UpdateData(this.email!, this.spreadsheetId!, tempData).then(() => {
+				this.Status = "Hours submitted!"
+				this.zone.run(() => {
+					this.data = tempData.slice();
+					this.FilterLast30DaysAndCalculateTotalHours();
+				});
+
+				this.submittingHours = false;
+			}).catch((e) => {
+				this.Status = e.error.error.message;
+				this.submittingHours = false;
+			});
+		}
+		catch(e: any) 
+		{
+			this.submittingHours = false;
+			this.Status = e.message;
+		}
 	}
 
 	public async GrabData() : Promise<boolean>
