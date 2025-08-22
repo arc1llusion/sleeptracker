@@ -1,6 +1,6 @@
 import { Context } from '@netlify/functions'
 
-import { google, sheets_v4 } from 'googleapis'
+import { google } from 'googleapis'
 import { neon } from '@neondatabase/serverless';
 
 export default async (request: Request, context: Context) => {
@@ -16,7 +16,8 @@ export default async (request: Request, context: Context) => {
 	let spreadsheetId = params.get('spreadsheetId');
 
 	const sql = neon(process.env.NETLIFY_DATABASE_URL ?? '');
-	let credentials = await sql`SELECT credentials FROM user_token where email = ${email}`;
+	let credentialsRaw = await sql`SELECT credentials FROM user_token where email = ${email}`;
+	let credentials = JSON.parse(credentialsRaw[0]['credentials']);
 
 	oauth.on('tokens', async (tokens) => 
 	{
@@ -34,7 +35,8 @@ export default async (request: Request, context: Context) => {
 			await sql`INSERT INTO user_token(email, credentials) VALUES(${email}, ${newCredentials});`;
 		}
 	});
-	oauth.setCredentials(JSON.parse(credentials[0]['credentials']));
+
+	oauth.setCredentials(credentials);
 
 	let sheets = google.sheets({version: 'v4', auth: oauth});
 
@@ -44,8 +46,6 @@ export default async (request: Request, context: Context) => {
 			majorDimension: "ROWS",
 			spreadsheetId: spreadsheetId!
 		});
-
-		console.log('response', response);
 
 		return Response.json({data: response.data.values});
 	}
