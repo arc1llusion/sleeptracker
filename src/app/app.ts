@@ -219,7 +219,7 @@ export class App {
 				return false;
 			}
 			else {
-				this.data = response;
+				this.data = response ?? [];
 				this.FilterLast30DaysAndCalculateTotalHours();
 				return true;
 			}			
