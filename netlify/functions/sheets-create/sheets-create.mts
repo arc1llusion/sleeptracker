@@ -56,7 +56,7 @@ export default async (request: Request, context: Context) =>
 			}
 		});
 
-		return Response.json(createResponse.data.spreadsheetId);
+		return Response.json({spreadsheetId: createResponse.data.spreadsheetId});
 	}	
 
 	return Response.json({spreadsheetId: files![0].id});
