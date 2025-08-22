@@ -89,9 +89,6 @@ export class App {
 		let params = new URLSearchParams(url.search);
 		let email = params.get('email');
 
-		console.log('email', localStorage.getItem('email'));
-		console.log('spreadsheetId', localStorage.getItem('spreadsheetId'));
-
 		if(email)
 		{
 			localStorage.setItem('email', email);
@@ -109,9 +106,10 @@ export class App {
 				localStorage.setItem('spreadsheetId', this.spreadsheetId!);
 			}			
 
-			await this.GrabData();
-
-			this.isLoggedIn = true;
+			if(await this.GrabData())
+			{
+				this.isLoggedIn = true;
+			}
 		}
 		else
 		{
@@ -186,25 +184,26 @@ export class App {
 		});
 	}
 
-	public async GrabData() 
+	public async GrabData() : Promise<boolean>
 	{
 		if(this.email)
 		{
 			let response = await this.sheets.GetData(this.email, this.spreadsheetId!);
-			console.log(response);
 			if(typeof response == 'boolean')
 			{
-				console.log('clear');
 				localStorage.clear();
 				this.isLoggedIn = false;
 				this.loginUrl = await this.sheets.GetLoginUrl();
+				return false;
 			}
 			else {
-				console.log('get data');
 				this.data = response;
 				this.FilterLast30DaysAndCalculateTotalHours();
+				return true;
 			}			
 		}
+
+		return false;
 	}
 
 	public FilterLast30DaysAndCalculateTotalHours()
