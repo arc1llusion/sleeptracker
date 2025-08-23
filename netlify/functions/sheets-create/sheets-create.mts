@@ -67,7 +67,7 @@ export default async (request: Request, context: Context) =>
 		catch(e)
 		{
 			console.log(e);
-			return Response.json({spreadsheetId: null});
+			return Response.json({spreadsheetId: null, error: JSON.stringify(e)});
 		}
 	}	
 
