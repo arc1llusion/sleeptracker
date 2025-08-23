@@ -44,23 +44,31 @@ export default async (request: Request, context: Context) =>
 		q: "name = 'Sleep Tracker'"
 	});
 
-	console.log('driveResponse', driveResponse);
-
 	const files = driveResponse.data.files;
 
 	console.log('files', files);
 	
 	if(files && files?.length == 0)
 	{
-		let createResponse = await sheets.spreadsheets.create({
-			requestBody: {
-				properties: {
-					title: 'Sleep Tracker'
+		try {
+			let createResponse = await sheets.spreadsheets.create({
+				requestBody: {
+					properties: {
+						title: 'Sleep Tracker'
+					}
 				}
-			}
-		});
+			});
 
-		return Response.json({spreadsheetId: createResponse.data.spreadsheetId});
+			console.log(createResponse);
+
+			
+			return Response.json({spreadsheetId: createResponse.data.spreadsheetId});
+		}
+		catch(e)
+		{
+			console.log(e);
+			return Response.json({spreadsheetId: null});
+		}
 	}	
 
 	return Response.json({spreadsheetId: files![0].id});
