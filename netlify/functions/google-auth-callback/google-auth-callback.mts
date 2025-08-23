@@ -17,6 +17,8 @@ export default async (request: Request, context: Context) => {
 	const result = await oauth.getToken(code!);
 	oauth.setCredentials(result.tokens);
 
+	console.log('included scopes', result.tokens.scope);
+
 	let promise = new Promise<string | null | undefined>((resolve, reject) => {
 		google.oauth2('v2').userinfo.get({
 			auth: oauth
