@@ -18,6 +18,8 @@ export default async (request: Request, context: Context) =>
 	const sql = neon(process.env.NETLIFY_DATABASE_URL ?? '');
 	let credentials = await sql`SELECT credentials FROM user_token where email = ${email}`;
 
+	console.log('email:', email);
+	console.log('number of results: ', credentials.length);
 	
 	oauth.on('tokens', async (tokens) => 
 	{
