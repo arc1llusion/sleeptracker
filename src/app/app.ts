@@ -255,7 +255,8 @@ export class App {
 		let localChartData = filtered.map((f) => {
 			return {
 				name: new Date(f[0] + "T00:00:00"), //necessary to prevent weird JS date shenanigans
-				value: Number.parseFloat(f[1])
+				value: Number.parseFloat(f[1]),
+				extra: f[2] ?? ''
 			};
 		});		
 
@@ -272,7 +273,8 @@ export class App {
 				{					
 					localChartData.splice(i, 0, {
 						name: new Date(lastDate.toDateString()),
-						value: 0
+						value: 0,
+						extra: ''
 					});
 				}
 			}
@@ -291,10 +293,12 @@ export class App {
 
 			localChartData.splice(0, 0, {
 				name: new Date(earliestDate.toDateString()),
-				value: 0
+				value: 0,
+				extra: ''
 			});
 		}		
 
 		this.chartData = localChartData;
+		console.log(this.chartData);
 	}
 }

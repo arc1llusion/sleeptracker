@@ -1,9 +1,6 @@
 <div id="container">
-	
+
 	<div class="remove-from-print">&nbsp;</div>
-	<div class="logout remove-from-print">
-		<button matButton="tonal" (click)="Logout()">Logout</button>
-	</div>
 	@if(!isLoggedIn)
 	{
 	<div class="login remove-from-print">
@@ -12,13 +9,16 @@
 				<mat-icon>how_to_reg</mat-icon>
 				Login
 			</a>
-			
+
 			<div class="startup-status-update">{{StartupStatus}}</div>
 		</div>
 	</div>
 	}
 	@if(isLoggedIn)
 	{
+	<div class="logout remove-from-print">
+		<button matButton="tonal" (click)="Logout()">Logout</button>
+	</div>
 	<fieldset id="fieldset" class="remove-from-print">
 		<form id="hoursForm" [formGroup]="addHoursForm" (submit)="AddHours()">
 			<div class="add-time-widget">
@@ -53,7 +53,7 @@
 			</div>
 		</form>
 		@if(submittingHours) {
-			<div id="status-spinner"><mat-spinner></mat-spinner></div>
+		<div id="status-spinner"><mat-spinner></mat-spinner></div>
 		}
 		<div id="status-update">{{Status}}</div>
 	</fieldset>
@@ -88,18 +88,15 @@
 	</div>
 
 	<div class="chart">
-		<ngx-charts-bar-vertical
-			[results]="chartData"
-			[gradient]="false"
-			[xAxis]="true"
-			[yAxis]="true"
-			[legend]="false"
-			[showXAxisLabel]="true"
-			[showYAxisLabel]="true"
-			[xAxisLabel]="'Date'"
-			[yAxisLabel]="'Hours'"
+		<ngx-charts-bar-vertical [results]="chartData" [gradient]="false" [xAxis]="true" [yAxis]="true" [legend]="false"
+			[showXAxisLabel]="true" [showYAxisLabel]="true" [xAxisLabel]="'Date'" [yAxisLabel]="'Hours'"
 			[scheme]="chartColorScheme">
-			</ngx-charts-bar-vertical>
+			<ng-template #tooltipTemplate let-model="model">
+				<span class="tooltip-label">{{model.name | date:'shortDate'}}</span>
+				<span class="tooltip-val">{{model.value}}</span>
+				<span class="tooltip-notes" style="margin-bottom: 12px">{{model.extra}}</span>
+			</ng-template>
+		</ngx-charts-bar-vertical>
 	</div>
 	}
 	<router-outlet></router-outlet>
