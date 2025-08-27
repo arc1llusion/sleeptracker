@@ -1,103 +1,114 @@
 <div id="container">
+	<div id="inner-container">
+		<div class="remove-from-print">&nbsp;</div>
+		@if(!isLoggedIn)
+		{
+		<div class="login remove-from-print">
+			<div class="login-button">
+				<a href="{{loginUrl}}" matFab extended [disabled]="loginUrl == ''">
+					<mat-icon>how_to_reg</mat-icon>
+					Login
+				</a>
 
-	<div class="remove-from-print">&nbsp;</div>
-	@if(!isLoggedIn)
-	{
-	<div class="login remove-from-print">
-		<div class="login-button">
-			<a href="{{loginUrl}}" matFab extended [disabled]="loginUrl == ''">
-				<mat-icon>how_to_reg</mat-icon>
-				Login
-			</a>
-
-			<div class="startup-status-update">{{StartupStatus}}</div>
-		</div>
-	</div>
-	}
-	@if(isLoggedIn)
-	{
-	<div class="logout remove-from-print">
-		<button matButton="tonal" (click)="Logout()">Logout</button>
-	</div>
-	<fieldset id="fieldset" class="remove-from-print">
-		<form id="hoursForm" [formGroup]="addHoursForm" (submit)="AddHours()">
-			<div class="add-time-widget">
-				<div class="fields item">
-					<div class="date-field">
-						<mat-form-field class="example-full-width">
-							<mat-label>Choose a date</mat-label>
-							<input matInput formControlName="date" [matDatepicker]="picker">
-							<mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-							<mat-datepicker #picker></mat-datepicker>
-						</mat-form-field>
-					</div>
-					<div class="hours-field">
-						<mat-form-field class="example-full-width">
-							<mat-label>Hours</mat-label>
-							<input matInput formControlName="hours">
-						</mat-form-field>
-					</div>
-					<div class="notes-field">
-						<mat-form-field class="example-full-width">
-							<mat-label>Notes</mat-label>
-							<textarea matInput placeholder="Place notes here..." formControlName="notes"></textarea>
-						</mat-form-field>
-					</div>
-				</div>
-				<div class="add-button item">
-					<button [disabled]="this.addHoursForm.valid === false || submittingHours === true" matFab extended>
-						<mat-icon>add</mat-icon>
-						Add Hours
-					</button>
-				</div>
+				<div class="startup-status-update">{{StartupStatus}}</div>
 			</div>
-		</form>
-		@if(submittingHours) {
-		<div id="status-spinner"><mat-spinner></mat-spinner></div>
+		</div>
 		}
-		<div id="status-update">{{Status}}</div>
-	</fieldset>
+		@if(isLoggedIn)
+		{
+		<div class="logout remove-from-print">
+			<button matButton="tonal" (click)="Logout()">Logout</button>
+		</div>
+		<fieldset id="fieldset" class="remove-from-print">
+			<form id="hoursForm" [formGroup]="addHoursForm" (submit)="AddHours()">
+				<div class="add-time-widget">
+					<div class="fields item">
+						<div class="date-field">
+							<mat-form-field class="example-full-width">
+								<mat-label>Choose a date</mat-label>
+								<input matInput formControlName="date" [matDatepicker]="picker">
+								<mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+								<mat-datepicker #picker></mat-datepicker>
+							</mat-form-field>
+						</div>
+						<div class="hours-field">
+							<mat-form-field class="example-full-width">
+								<mat-label>Hours</mat-label>
+								<input matInput formControlName="hours">
+							</mat-form-field>
+						</div>
+						<div class="notes-field">
+							<mat-form-field class="example-full-width">
+								<mat-label>Notes</mat-label>
+								<textarea matInput placeholder="Place notes here..." formControlName="notes"></textarea>
+							</mat-form-field>
+						</div>
+					</div>
+					<div class="add-button item">
+						<button [disabled]="this.addHoursForm.valid === false || submittingHours === true" matFab
+							extended>
+							<mat-icon>add</mat-icon>
+							Add Hours
+						</button>
+					</div>
+				</div>
+			</form>
+			@if(submittingHours) {
+			<div id="status-spinner"><mat-spinner></mat-spinner></div>
+			}
+			<div id="status-update">{{Status}}</div>
+		</fieldset>
 
-	<div class="data">
-		<h2>Last 30 Days</h2>
-		<p>Nightly Average: {{averagePerNight | number : '1.2-2'}}</p>
-		<table mat-table [dataSource]="dataSource">
-			<ng-container matColumnDef="date">
-				<th mat-header-cell *matHeaderCellDef> Date </th>
-				<td mat-cell *matCellDef="let element"> {{element[0]}} </td>
-				<td mat-footer-cell *matFooterCellDef><strong>Total:</strong></td>
-			</ng-container>
+		<div class="data">
+			<h2>Last 30 Days</h2>
+			<p>Nightly Average: {{averagePerNight | number : '1.2-2'}}</p>
+			<table mat-table [dataSource]="dataSource">
+				<ng-container matColumnDef="date">
+					<th mat-header-cell *matHeaderCellDef> Date </th>
+					<td mat-cell *matCellDef="let element"> {{element[0]}} </td>
+					<td mat-footer-cell *matFooterCellDef><strong>Total:</strong></td>
+				</ng-container>
 
-			<!-- Name Column -->
-			<ng-container matColumnDef="hours">
-				<th mat-header-cell *matHeaderCellDef> Hours </th>
-				<td mat-cell *matCellDef="let element"> {{element[1]}} </td>
-				<td mat-footer-cell *matFooterCellDef> {{totalHoursLast30Days}} </td>
-			</ng-container>
+				<!-- Name Column -->
+				<ng-container matColumnDef="hours">
+					<th mat-header-cell *matHeaderCellDef> Hours </th>
+					<td mat-cell *matCellDef="let element"> {{element[1]}} </td>
+					<td mat-footer-cell *matFooterCellDef> {{totalHoursLast30Days}} </td>
+				</ng-container>
 
-			<ng-container matColumnDef="notes">
-				<th mat-header-cell *matHeaderCellDef> Notes </th>
-				<td mat-cell *matCellDef="let element"> {{element[2]}} </td>
-				<td mat-footer-cell *matFooterCellDef>&nbsp;</td>
-			</ng-container>
+				<ng-container matColumnDef="notes">
+					<th mat-header-cell *matHeaderCellDef> Notes </th>
+					<td mat-cell *matCellDef="let element"> {{element[2]}} </td>
+					<td mat-footer-cell *matFooterCellDef>&nbsp;</td>
+				</ng-container>
 
-			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-			<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-			<tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
-		</table>
+				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+				<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+				<tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+			</table>
+		</div>
+
+		<h2>Hours Per Night</h2>
+		<div class="chart">
+			<ngx-charts-bar-vertical [results]="chartData" [gradient]="false" [xAxis]="true" [yAxis]="true"
+				[legend]="false" [showXAxisLabel]="true" [showYAxisLabel]="true" [xAxisLabel]="'Date'"
+				[yAxisLabel]="'Hours'" [scheme]="chartColorScheme">
+				<ng-template #tooltipTemplate let-model="model">
+					<span class="tooltip-label">{{model.name | date:'shortDate'}}</span>
+					<span class="tooltip-val">{{model.value}}</span>
+					<span class="tooltip-notes" style="margin-bottom: 12px">{{model.extra}}</span>
+				</ng-template>
+			</ngx-charts-bar-vertical>
+		</div>
+
+		<h2>Average Hours Over Time</h2>
+		<div class="line-chart">
+			<ngx-charts-line-chart [results]="lineChartData" [gradient]="false" [xAxis]="true" [yAxis]="true"
+				[legend]="false" [showXAxisLabel]="true" [showYAxisLabel]="true" [xAxisLabel]="'Date'"
+				[yAxisLabel]="'Hours'" [scheme]="lineChartColorScheme" [title]="'Average Hours Over Time'">
+			</ngx-charts-line-chart>
+		</div>
+		}
+		<router-outlet></router-outlet>
 	</div>
-
-	<div class="chart">
-		<ngx-charts-bar-vertical [results]="chartData" [gradient]="false" [xAxis]="true" [yAxis]="true" [legend]="false"
-			[showXAxisLabel]="true" [showYAxisLabel]="true" [xAxisLabel]="'Date'" [yAxisLabel]="'Hours'"
-			[scheme]="chartColorScheme">
-			<ng-template #tooltipTemplate let-model="model">
-				<span class="tooltip-label">{{model.name | date:'shortDate'}}</span>
-				<span class="tooltip-val">{{model.value}}</span>
-				<span class="tooltip-notes" style="margin-bottom: 12px">{{model.extra}}</span>
-			</ng-template>
-		</ngx-charts-bar-vertical>
-	</div>
-	}
-	<router-outlet></router-outlet>
 </div>

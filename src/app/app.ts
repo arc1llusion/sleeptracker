@@ -47,6 +47,7 @@ export class App {
 	public totalHoursLast30Days = 0;
 	public averagePerNight = 0;
 	public chartData: any;
+	public lineChartData: any;
 
 	public addHoursForm: FormGroup;
 
@@ -63,10 +64,17 @@ export class App {
 	public submittingHours: boolean = false;
 
 	public chartColorScheme: Color = {
-		name: 'myScheme',
+		name: 'chartScheme',
 		selectable: true,
 		group: ScaleType.Ordinal,
 		domain: ['#7AA3E5'],
+	};
+
+	public lineChartColorScheme: Color = {
+		name: 'lineChartScheme',
+		selectable: true,
+		group: ScaleType.Ordinal,
+		domain: ['#125f0b'],
 	};
 
 	constructor(private zone: NgZone, private router: Router, private formBuilder: FormBuilder, private sheets: SheetsApiService) {
@@ -284,6 +292,32 @@ export class App {
 			return a.name == b.name ? 0 : a.name < b.name ? -1 : 1;
 		});
 
+		this.chartData = localChartData;
+				
+		//Find average over time
+		let averageOverTimeData = [];
+		for(let i = 0; i < localChartData.length; ++i)
+		{
+			let sum = 0;
+			for(let j = 0; j <= i; ++j)
+			{
+				sum += localChartData[j].value;
+			}
+
+			averageOverTimeData.push({
+				name: localChartData[i].name,
+				value: sum / (i + 1)
+			});
+		}
+
+		this.lineChartData = [
+			{
+				name: "Average Over Time",
+				series: averageOverTimeData
+			}
+		];
+
+		//Add empty days
 		let earliestDate = new Date(localChartData[0].name.toDateString());
 		let leadingDatesNeeded = 30 - localChartData.length;
 
@@ -297,8 +331,5 @@ export class App {
 				extra: ''
 			});
 		}		
-
-		this.chartData = localChartData;
-		console.log(this.chartData);
 	}
 }
