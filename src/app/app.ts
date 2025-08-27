@@ -1,5 +1,6 @@
 import { Component, NgZone, signal } from '@angular/core';
-import { Form, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { formatDate } from '@angular/common'
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterOutlet } from '@angular/router';
@@ -10,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
 
 declare var google: any;
@@ -317,6 +318,8 @@ export class App {
 			}
 		];
 
+		console.log(this.lineChartData);
+
 		//Add empty days
 		let earliestDate = new Date(localChartData[0].name.toDateString());
 		let leadingDatesNeeded = 30 - localChartData.length;
@@ -331,5 +334,10 @@ export class App {
 				extra: ''
 			});
 		}		
+	}
+
+	public formatDate(val: any) 
+	{
+		return formatDate(val, 'MM/dd/yyyy', 'en-US');
 	}
 }
