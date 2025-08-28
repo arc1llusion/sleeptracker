@@ -86,6 +86,10 @@
 				<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 				<tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
 			</table>
+			<mat-paginator [pageSizeOptions]="[5, 10, 20, 30]" [pageSize]="10"
+							showFirstLastButtons
+							aria-label="Select page">
+			</mat-paginator>
 		</div>
 
 		<h2>Hours Per Night</h2>

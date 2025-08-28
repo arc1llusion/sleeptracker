@@ -1,4 +1,4 @@
-import { Component, NgZone, signal } from '@angular/core';
+import { AfterContentChecked, AfterViewInit, Component, NgZone, OnInit, signal, ViewChild } from '@angular/core';
 import { formatDate } from '@angular/common'
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { SheetsApiService } from './sheets-api.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -25,6 +26,7 @@ declare var google: any;
 		MatButtonModule,
 		MatIconModule,
 		MatInputModule,
+		MatPaginatorModule,
 		MatTableModule,
 		MatFormFieldModule,
 		MatDatepickerModule,
@@ -36,7 +38,7 @@ declare var google: any;
 	templateUrl: './app.html',
 	styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnInit, AfterContentChecked {
 	protected readonly title = signal('sleeptracker');
 
 	isLoggedIn: boolean = false;
@@ -44,7 +46,9 @@ export class App {
 	public data: any[] = [];
 	public displayedColumns = ["date", "hours", "notes"];
 
-	public dataSource = new MatTableDataSource<any[]>();
+	public dataSource = new MatTableDataSource<any[]>([]);
+	@ViewChild(MatPaginator) paginator!: MatPaginator;
+	
 	public totalHoursLast30Days = 0;
 	public averagePerNight = 0;
 	public chartData: any;
@@ -92,6 +96,14 @@ export class App {
 	public async ngOnInit() 
 	{
 		this.SetUp();
+	}
+
+	public ngAfterContentChecked(): void 
+	{
+		if(this.isLoggedIn && !this.dataSource.paginator)
+		{
+			this.dataSource.paginator = this.paginator;
+		}
 	}
 
 	public async SetUp() 
