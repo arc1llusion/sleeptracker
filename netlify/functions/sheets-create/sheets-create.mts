@@ -1,7 +1,7 @@
 import { Context } from '@netlify/functions'
 
 import { google, sheets_v4 } from 'googleapis'
-import { neon } from '@neondatabase/serverless';
+import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 
 export default async (request: Request, context: Context) => 
 {
@@ -14,6 +14,11 @@ export default async (request: Request, context: Context) =>
 	let url = new URL(request.url);
 	let params = new URLSearchParams(url.search);
 	let email = params.get('email');
+
+	if(!email)
+	{
+		return Response.json({error: "Email must be provided.", clear: true}, { status: 400 })
+	}
 
 	const sql = neon(process.env.NETLIFY_DATABASE_URL ?? '');
 	let credentials = await sql`SELECT credentials FROM user_token where email = ${email}`;
@@ -39,19 +44,17 @@ export default async (request: Request, context: Context) =>
 	});
 	oauth.setCredentials(JSON.parse(credentials[0]['credentials']));
 
-	let drive = google.drive({version: 'v3', auth: oauth});
-	let sheets = google.sheets({version: 'v4', auth: oauth});
-	
-	const driveResponse = await drive.files.list({
-		q: "name = 'Sleep Tracker'"
-	});
+	let spreadsheetId = await getOrCreateSpreadsheet(oauth, sql, email);
 
-	const files = driveResponse.data.files;
+	return Response.json({spreadsheetId: spreadsheetId});
+}
 
-	console.log('files', files);
-	
-	if(files && files?.length == 0)
-	{
+async function getOrCreateSpreadsheet(oauth: any, sql: NeonQueryFunction<false, false>, email: string) : Promise<string | null>
+{
+	let results = await sql`SELECT spreadsheetId FROM user_spreadsheet WHERE email = ${email};`
+
+	if(results.length == 0) {
+		let sheets = google.sheets({version: 'v4', auth: oauth});
 		try {
 			let createResponse = await sheets.spreadsheets.create({
 				requestBody: {
@@ -61,17 +64,20 @@ export default async (request: Request, context: Context) =>
 				}
 			});
 
-			console.log(createResponse);
-
+			if(createResponse.data.spreadsheetId)
+			{
+				await sql`INSERT INTO user_spreadsheet(email, spreadsheetId) VALUES(${email}, ${createResponse.data.spreadsheetId});`
+			}
 			
-			return Response.json({spreadsheetId: createResponse.data.spreadsheetId});
+			return createResponse.data.spreadsheetId ?? null;
 		}
 		catch(e)
 		{
-			console.log(e);
-			return Response.json({spreadsheetId: null, error: JSON.stringify(e)});
+			return null;
 		}
-	}	
+	}
 
-	return Response.json({spreadsheetId: files![0].id});
+	console.log(results);
+
+	return results[0]['spreadsheetid'];
 }
