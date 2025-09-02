@@ -1,4 +1,4 @@
-import { AfterContentChecked, AfterViewInit, Component, NgZone, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterContentChecked, Component, NgZone, OnInit, signal, ViewChild } from '@angular/core';
 import { formatDate } from '@angular/common'
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatNativeDateModule, NativeDateModule } from '@angular/material/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
 
 declare var google: any;
@@ -329,8 +329,6 @@ export class App implements OnInit, AfterContentChecked {
 				series: averageOverTimeData
 			}
 		];
-
-		console.log(this.lineChartData);
 
 		//Add empty days
 		let earliestDate = new Date(localChartData[0].name.toDateString());
